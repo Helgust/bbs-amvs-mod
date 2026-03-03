@@ -258,6 +258,9 @@ public class UIKeys
     public static final IKey FILM_NO_CAMERA_TITLE = L10n.lang("bbs.ui.film.no_camera-title");
     public static final IKey FILM_OPEN_ACTION_EDITOR = L10n.lang("bbs.ui.film.open_action_editor");
     public static final IKey FILM_OPEN_CAMERA_EDITOR = L10n.lang("bbs.ui.film.open_camera_editor");
+    public static final IKey FILM_LAYOUT_LOCK = L10n.lang("bbs.ui.film.layout_lock");
+    public static final IKey FILM_LAYOUT_PRESETS = L10n.lang("bbs.ui.film.layout_presets");
+    public static final IKey FILM_LAYOUT_UNLOCK = L10n.lang("bbs.ui.film.layout_unlock");
     public static final IKey FILM_OPEN_HISTORY = L10n.lang("bbs.ui.film.open_history");
     public static final IKey FILM_OPTIONS = L10n.lang("bbs.ui.film.options");
     public static final IKey FILM_OPEN_REPLAY_EDITOR = L10n.lang("bbs.ui.film.open_replay_editor");
@@ -885,6 +888,7 @@ public class UIKeys
     public static final IKey TRANSFORMS_EDITING = L10n.lang("bbs.ui.transforms.editing");
     public static final IKey TRANSFORMS_KEYS_CATEGORY = L10n.lang("bbs.ui.transforms.keys.category");
     public static final IKey TRANSFORMS_KEYS_TOGGLE_AXES = L10n.lang("bbs.ui.transforms.keys.toggle_axes");
+    public static final IKey TRANSFORMS_KEYS_TOGGLE_FIX = L10n.lang("bbs.ui.transforms.keys.toggle_fix");
     public static final IKey TRANSFORMS_ROTATE = L10n.lang("bbs.ui.transforms.rotate");
     public static final IKey TRANSFORMS_ROTATE2 = L10n.lang("bbs.ui.transforms.rotate2");
     public static final IKey TRANSFORMS_SCALE = L10n.lang("bbs.ui.transforms.scale");
@@ -924,6 +928,8 @@ public class UIKeys
     public static final IKey VIDEO_SETTINGS_PATH = L10n.lang("bbs.ui.video_settings.path");
     public static final IKey VIDEO_SETTINGS_OPEN_FOLDER_AFTER_EXPORT = L10n.lang("bbs.ui.video_settings.open_folder_after_export");
     public static final IKey VIDEO_SETTINGS_OPEN_FOLDER_AFTER_EXPORT_TOOLTIP = L10n.lang("bbs.ui.video_settings.open_folder_after_export-tooltip");
+    public static final IKey VIDEO_SETTINGS_PLAY_SOUND_AFTER_EXPORT = L10n.lang("bbs.ui.video_settings.play_sound_after_export");
+    public static final IKey VIDEO_SETTINGS_PLAY_SOUND_AFTER_EXPORT_TOOLTIP = L10n.lang("bbs.ui.video_settings.play_sound_after_export-tooltip");
     public static final IKey VIDEO_SETTINGS_PRESETS_1080P = L10n.lang("bbs.ui.video_settings.presets.1080p");
     public static final IKey VIDEO_SETTINGS_PRESETS_1440P = L10n.lang("bbs.ui.video_settings.presets.1440p");
     public static final IKey VIDEO_SETTINGS_PRESETS_4K = L10n.lang("bbs.ui.video_settings.presets.4k");
