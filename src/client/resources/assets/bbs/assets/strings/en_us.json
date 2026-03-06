@@ -1,6 +1,8 @@
 {
 	"bbs.config.appearance.axes_scale": "Axes scale",
 	"bbs.config.appearance.axes_scale-comment": "Determines the size of axes, if the axes are too big, you can adjust to your liking",
+	"bbs.config.appearance.axes_thickness": "Axis thickness",
+	"bbs.config.appearance.axes_thickness-comment": "Thickness of the axis lines (gizmo and world axes)",
 	"bbs.config.appearance.click_sound": "Click sounds",
 	"bbs.config.appearance.click_sound-comment": "By enabling this option, button clicks will play BBS Studio's custom clicking sound effect",
 	"bbs.config.appearance.force_qwerty": "Force QWERTY",
@@ -505,6 +507,7 @@
 	"bbs.ui.film.replay.axes_preview": "Axes preview",
 	"bbs.ui.film.replay.context.add": "Add a replay here",
 	"bbs.ui.film.replay.context.animation_to_keyframes": "Animation to pose keyframes...",
+	"bbs.ui.film.replay.context.poses_to_limbs": "Poses to limbs",
 	"bbs.ui.film.replay.context.move_here": "Move replay here",
 	"bbs.ui.film.replay.filter_sheets": "Filter tracks...",
 	"bbs.ui.film.replay.filter_sheets-title": "Keyframe tracks",
