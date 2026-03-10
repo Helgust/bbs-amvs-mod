@@ -306,6 +306,7 @@ public class UIFilmPanel extends UIDataDashboardPanel<Film> implements IFlightSu
         };
 
         this.add(element);
+        this.add(new UIFilmPanelUndoKeys(this).full(this));
     }
 
     public boolean isLayoutLocked()
@@ -1556,7 +1557,7 @@ public class UIFilmPanel extends UIDataDashboardPanel<Film> implements IFlightSu
     private void renderIcons(UIContext context)
     {
         int x = this.iconBar.area.ex() - 18;
-        int y = this.iconBar.area.ey() - 18;
+        int y = this.iconBar.area.ey() - EDIT_PANEL_TOP_OFFSET_PX * 2 - 20;
 
         if (BBSSettings.editorLoop.get())
         {
@@ -1567,10 +1568,8 @@ public class UIFilmPanel extends UIDataDashboardPanel<Film> implements IFlightSu
     private void renderDividers(UIContext context)
     {
         Area a1 = this.openFilmMenu.area;
-        Area a2 = this.openCameraEditor.area;
 
         context.batcher.box(a1.x + 3, a1.ey() + 4, a1.ex() - 3, a1.ey() + 5, 0x22ffffff);
-        context.batcher.box(a2.x + 3, a2.ey() + 4, a2.ex() - 3, a2.ey() + 5, 0x22ffffff);
     }
 
     @Override

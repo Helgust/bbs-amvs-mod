@@ -1,5 +1,16 @@
 package mchorse.bbs_mod.ui.framework.elements.input.keyframes;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+import org.lwjgl.glfw.GLFW;
+
 import mchorse.bbs_mod.BBSSettings;
 import mchorse.bbs_mod.data.types.BaseType;
 import mchorse.bbs_mod.data.types.ListType;
@@ -12,11 +23,12 @@ import mchorse.bbs_mod.ui.Keys;
 import mchorse.bbs_mod.ui.UIKeys;
 import mchorse.bbs_mod.ui.framework.UIContext;
 import mchorse.bbs_mod.ui.framework.elements.UIElement;
-import mchorse.bbs_mod.ui.framework.elements.utils.UIDraggable;
 import mchorse.bbs_mod.ui.framework.elements.input.keyframes.graphs.IUIKeyframeGraph;
 import mchorse.bbs_mod.ui.framework.elements.input.keyframes.graphs.KeyframeType;
 import mchorse.bbs_mod.ui.framework.elements.input.keyframes.graphs.UIKeyframeDopeSheet;
 import mchorse.bbs_mod.ui.framework.elements.input.keyframes.graphs.UIKeyframeGraph;
+import mchorse.bbs_mod.ui.framework.elements.input.keyframes.graphs.UIVector3KeyframeGraph;
+import mchorse.bbs_mod.ui.framework.elements.utils.UIDraggable;
 import mchorse.bbs_mod.ui.utils.Area;
 import mchorse.bbs_mod.ui.utils.Scale;
 import mchorse.bbs_mod.ui.utils.Scroll;
@@ -34,21 +46,11 @@ import mchorse.bbs_mod.utils.keyframes.KeyframeChannel;
 import mchorse.bbs_mod.utils.keyframes.KeyframeSegment;
 import mchorse.bbs_mod.utils.keyframes.factories.IKeyframeFactory;
 import mchorse.bbs_mod.utils.keyframes.factories.KeyframeFactories;
-import mchorse.bbs_mod.utils.presets.PresetManager;
-import org.lwjgl.glfw.GLFW;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import mchorse.bbs_mod.ui.framework.elements.input.keyframes.graphs.UIVector3KeyframeGraph;
-import mchorse.bbs_mod.ui.framework.elements.input.keyframes.UIKeyframeElement;
 import mchorse.bbs_mod.utils.keyframes.factories.Vector3fKeyframeFactory;
+import mchorse.bbs_mod.utils.pose.Pose;
+import mchorse.bbs_mod.utils.pose.PoseTransform;
+import mchorse.bbs_mod.utils.pose.Transform;
+import mchorse.bbs_mod.utils.presets.PresetManager;
 
 public class UIKeyframes extends UIElement
 {
@@ -106,6 +108,11 @@ public class UIKeyframes extends UIElement
             int w = context.mouseX - this.area.x;
             BBSSettings.editorLayoutSettings.setKeyframeLabelWidth(w);
             this.resize();
+            /* Notify parents so e.g. replay editor can sync its category bar width */
+            for (UIElement p = this.getParent(); p != null; p = p.getParent())
+            {
+                p.resize();
+            }
         });
         this.labelResizer.hoverOnly();
         this.add(this.labelResizer);
@@ -154,6 +161,7 @@ public class UIKeyframes extends UIElement
 
             menu.action(Icons.MAXIMIZE, UIKeys.KEYFRAMES_CONTEXT_MAXIMIZE, this::resetView);
             menu.action(Icons.FULLSCREEN, UIKeys.KEYFRAMES_CONTEXT_SELECT_ALL, () -> this.currentGraph.selectAll());
+            menu.action(Icons.FULLSCREEN, UIKeys.KEYFRAMES_KEYS_SELECT_TRACK, this::selectAllOnTrackUnderCursor);
 
             if (hasSelected)
             {
@@ -179,6 +187,10 @@ public class UIKeyframes extends UIElement
                         sheet.channel.postNotify();
                     }
                 });
+                if (this.hasSelectedTransformKeyframes())
+                {
+                    menu.action(Icons.CLOSE, UIKeys.TRANSFORMS_CONTEXT_RESET, this::resetSelectedTransforms);
+                }
                 menu.action(Icons.REMOVE, UIKeys.KEYFRAMES_CONTEXT_REMOVE, () -> this.currentGraph.removeSelected());
             }
         });
@@ -189,6 +201,7 @@ public class UIKeyframes extends UIElement
 
         this.keys().register(Keys.KEYFRAMES_MAXIMIZE, this::resetView).inside().category(category);
         this.keys().register(Keys.KEYFRAMES_SELECT_ALL, () -> this.currentGraph.selectAll()).inside().category(category).active(canModify);
+        this.keys().register(Keys.KEYFRAMES_SELECT_TRACK, this::selectAllOnTrackUnderCursor).inside().category(category).active(canModify);
         this.keys().register(Keys.COPY, () ->
         {
             if (this.copyPasteController.copy()) UIUtils.playClick();
@@ -321,6 +334,19 @@ public class UIKeyframes extends UIElement
     public UIKeyframeDopeSheet getDopeSheet()
     {
         return this.dopeSheet;
+    }
+
+    private void selectAllOnTrackUnderCursor()
+    {
+        UIContext context = this.getContext();
+        UIKeyframeSheet sheet = this.currentGraph.getSheet(context.mouseY);
+
+        if (sheet != null)
+        {
+            this.currentGraph.clearSelection();
+            sheet.selection.all();
+            this.currentGraph.pickSelected();
+        }
     }
 
     protected void selectNextKeyframe(int direction)
@@ -501,6 +527,76 @@ public class UIKeyframes extends UIElement
     public float getStackOffset()
     {
         return this.stackOffset;
+    }
+
+    private boolean hasSelectedTransformKeyframes()
+    {
+        for (UIKeyframeSheet sheet : this.currentGraph.getSheets())
+        {
+            for (Keyframe kf : sheet.selection.getSelected())
+            {
+                Object value = kf.getValue();
+                if (value instanceof Transform || value instanceof Pose)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private void resetSelectedTransforms()
+    {
+        for (UIKeyframeSheet sheet : this.currentGraph.getSheets())
+        {
+            List<Keyframe> selected = sheet.selection.getSelected();
+
+            if (selected.isEmpty())
+            {
+                continue;
+            }
+
+            boolean anyTransform = false;
+            for (Keyframe kf : selected)
+            {
+                if (kf.getValue() instanceof Transform || kf.getValue() instanceof Pose)
+                {
+                    anyTransform = true;
+                    break;
+                }
+            }
+
+            if (!anyTransform)
+            {
+                continue;
+            }
+
+            sheet.channel.preNotify();
+
+            for (Keyframe kf : selected)
+            {
+                Object value = kf.getValue();
+                if (value instanceof Transform t)
+                {
+                    t.translate.set(0, 0, 0);
+                    t.scale.set(1, 1, 1);
+                    t.rotate.set(0, 0, 0);
+                    t.rotate2.set(0, 0, 0);
+                }
+                else if (value instanceof Pose pose)
+                {
+                    for (PoseTransform pt : pose.transforms.values())
+                    {
+                        pt.translate.set(0, 0, 0);
+                        pt.scale.set(1, 1, 1);
+                        pt.rotate.set(0, 0, 0);
+                        pt.rotate2.set(0, 0, 0);
+                    }
+                }
+            }
+
+            sheet.channel.postNotify();
+        }
     }
 
     private void spreadKeyframes()
